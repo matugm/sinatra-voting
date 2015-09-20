@@ -1,36 +1,35 @@
 require 'sinatra'
-require 'active_record'
+require 'sequel'
 
+require 'tilt/haml'
 require 'pg'
-require 'haml'
 
-ActiveRecord::Base.establish_connection(
+Sequel.connect(
   adapter: 'postgresql',
   database: 'postgres',
   user: 'postgres',
   pool: 5
 )
 
-class Vote < ActiveRecord::Base
+class Vote < Sequel::Model
 end
 
 after do
-  ActiveRecord::Base.clear_active_connections!
 end
 
 post '/vote' do
   vote_id = params[:id]
 
-  vote = Vote.find_or_initialize_by(id: vote_id)
+  vote = Vote.where(id: vote_id).first
 
   vote.count += 1
-  vote.save!
+  vote.save
 
   "Count updated!"
 end
 
 get '/' do
-  @votes = Vote.all.order(:id)
+  @votes = Vote.order(:id).all
   haml :index
 end
 
