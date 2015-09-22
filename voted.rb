@@ -19,9 +19,9 @@ after do
 end
 
 post '/vote' do
-  vote_id = params[:id]
+  vote_name = params[:name]
 
-  vote = Vote.find_or_initialize_by(id: vote_id)
+  vote = Vote.find_or_create_by(name: vote_name)
 
   vote.count += 1
   vote.save!
